@@ -1,0 +1,9 @@
+
+binance:
+  order-book:
+    url: https://api.binance.com/api/v3/depth
+
+
+info:
+  project-version: '@project.version@'
+  build-timestamp: '@maven.build.timestamp@'

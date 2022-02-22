@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: binance-rest
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
+    info:
+      enabled: true
