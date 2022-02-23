@@ -1,7 +1,7 @@
 # binance-rest
-Restful services consuming Binance API
+Restful services for consuming Binance API to give estimate of coins gained from executing a Buy/Sell order in Spot trading
+by using the current Order Book.
 
-----
 
 
 **Introduction**
@@ -20,11 +20,13 @@ USDT. Then visit url of online Binance API to confirm there is open Order Book f
 https://api.binance.com/api/v3/depth?limit=100&symbol=BTCUSDT.
 
 After that, check out this project, build executable jar file in console with the command:
-$ mvn clean package
 
-This should create a target folder containing the executable jar file binance-rest.jar. To start up the application, 
+    $ mvn clean package
+
+This should create a target folder containing the executable jar file _binance-rest.jar_. To start up the application, 
 simply run the following command in console inside the folder containing jar file:
-$ java -jar binance-rest.jar
+
+    $ java -jar binance-rest.jar
 
 **How to Use**
 
@@ -33,31 +35,40 @@ $ java -jar binance-rest.jar
   * limit: number of asks/bids data on offer to retrieve from Binance Open Book for the trading pair above
   * amount: number of coins to trade
   * rate: For Sell order only. Use this to estimate fiat value of your traded coins, e.g. for trading pair 
-    BTCUSDT, the coins acquired after Sell order will be USDT, since each USD ~ $1.502 NZD, use rate=1.502 to 
-    estimate NZD value of the coins acquired after trade.
+    BTCUSDT, the coins gained after Sell order will be USDT, since each USD ~ $1.502 NZD, use rate=1.502 to 
+    estimate NZD value of the coins gained after trade.
 
     
 * **Sell Order service**
   * This can be called in browser with a simple HTTP GET using request parameters described above. For example, open a 
     browser then visit the URL http://localhost:8080/order-book/sell?symbol=DENTBUSD&limit=500&amount=7000000&rate=1.502 
-    to get estimate of the value of BUSD acquired in NZD after executing a Sell order of 7 million DENT. Remove the 
-    request parameter string '&rate=1.502' if only wish to see the number of BUSD coins acquired after sell.
+    to get estimate of the value of BUSD gained in NZD after executing a Sell order of 7 million DENT. Remove the 
+    request parameter string '&rate=1.502' if only wish to see the number of BUSD coins gained after sell.
   * 
-  * Example 1: Number of BUSD acquired for executing Sell order of 7,000,000.00 DENT
+  * Example 1: Number of BUSD gained by executing a Sell order of 7,000,000.00 DENT
 
     ![](src/main/resources/sellOrder.jpg)
   *
-  * Example 2: Profit for executing Sell order of 7,000,000.00 DENT by using request parameter 'rate', i.e. 1 BUSD = 1 USD ~ 1.5026 NZD
+  * Example 2: Fiat value of coins gained by executing a Sell order of 7,000,000.00 DENT by using request parameter 'rate', i.e. 1 BUSD = 1 USD ~ 1.5026 NZD
 
     ![](src/main/resources/sellOrderProfit.jpg)
 
 
 * **Buy Order service**
   * This can be called in browser with a simple HTTP GET using request parameters described above. For example, open a
-    browser then visit the URL http://localhost:8080/order-book/buy?symbol=HOTBUSD&limit=500&amount=1000
-    to get estimate of HOT acquired after executing a Buy order with 1000 BUSD.
+    browser then visit the URL http://localhost:8080/order-book/buy?symbol=HOTBUSD&limit=500&amount=1000 to get an 
+    estimate of HOT gained for executing a Buy order with 1000 BUSD.
 
+
+* **Binance API Deep Dive**
+
+  If you want to learn more about Binance API, feel free to knock yourself out at:
+  - [Binance API Series Pt. I – Spot Trading with Postman](https://academy.binance.com/en/articles/binance-api-series-pt-1-spot-trading-with-postman)
+  - [Binance API Postman](https://github.com/binance/binance-api-postman)
+  - [Official Documentation for the Binance APIs and Streams](https://github.com/binance/binance-spot-api-docs)
+  - ...
     
+
 * **Tips:** 
   * Use a free, testing tool like Postman to create and save Sell/Buy requests so one can simply call service by 
     clicking a button without typing or 'copy & paste' in browser address bar
