@@ -35,7 +35,7 @@ public class RequestLoggingFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
         ServerHttpRequest request = serverWebExchange.getRequest();
 
-        log.info("Request: path={}", request.getPath());
+        log.info("Request: path={}", request.getURI() );
         ServerWebExchangeDecorator decorator =
                 new ServerWebExchangeDecorator(serverWebExchange) {
 
@@ -52,6 +52,19 @@ public class RequestLoggingFilter implements WebFilter {
 
         return webFilterChain.filter(decorator);
     }
+
+    public static String getDataByDataBuffer(DataBuffer dataBuffer) {
+        String data = null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try ( baos ) {
+            Channels.newChannel(baos).write( dataBuffer.asByteBuffer().asReadOnlyBuffer() );
+            data = baos.toString( StandardCharsets.UTF_8 );
+        } catch (IOException e) {
+            log.error( "Error reading data from DataBuffer...", e );
+        }
+        return data;
+    }
+
 }
 
 @Slf4j
@@ -61,24 +74,11 @@ class RequestLoggingDecorator extends ServerHttpRequestDecorator {
         super(delegate);
     }
 
-
     @Override
     public Flux<DataBuffer> getBody() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         return super.getBody().doOnNext(dataBuffer -> {
-            try {
-                Channels.newChannel(baos).write(dataBuffer.asByteBuffer().asReadOnlyBuffer());
-                String body = baos.toString(StandardCharsets.UTF_8);
-                log.info("Request: payload={}", body);
-            } catch (IOException e) {
-                log.error(e.getMessage());
-            } finally {
-                try {
-                    baos.close();
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-            }
+            String body = RequestLoggingFilter.getDataByDataBuffer( dataBuffer );
+            log.info("Request: payload={}", body);
         });
     }
 }
@@ -92,21 +92,10 @@ class ResponseLoggingDecorator extends ServerHttpResponseDecorator {
     @Override
     public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
         Mono<DataBuffer> buffer = Mono.from(body);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        return super.writeWith(buffer.doOnNext(dataBuffer -> {
-            try {
-                Channels.newChannel(baos).write(dataBuffer.asByteBuffer().asReadOnlyBuffer());
-                String resp = baos.toString(StandardCharsets.UTF_8);
-                log.info("Response: payload={}", resp);
-            } catch (IOException e) {
-                log.error(e.getMessage());
-            } finally {
-                try {
-                    baos.close();
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-            }
+
+        return super.writeWith( buffer.doOnNext( dataBuffer -> {
+            String response = RequestLoggingFilter.getDataByDataBuffer( dataBuffer );
+            log.info("Response: payload={}", response);
         }));
     }
 }
